@@ -2,21 +2,28 @@ package router
 
 import (
 	"danielherschel/home-recipe/pkg/domain"
+	"danielherschel/home-recipe/pkg/middleware"
 	"danielherschel/home-recipe/pkg/service"
 
-	"github.com/google/uuid"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func SetupRouter(svc service.RecipeBookService) *gin.Engine {
 	router := gin.Default()
+
+	router.Use(middleware.DevAuthMiddleware())
 
 	router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
 	router.GET("/api/books/:id", func(c *gin.Context) {
-		userID := c.GetHeader("X-API-User-ID")
+		userID, ok := getUserID(c)
+        if !ok {
+            return
+        }
+
 		recipeBookname := c.Param("id")
 		recipeBook, err := svc.GetRecipeBook(c.Request.Context(), userID, recipeBookname)
 		if err != nil {
@@ -31,7 +38,11 @@ func SetupRouter(svc service.RecipeBookService) *gin.Engine {
 	})
 
 	router.POST("/api/books/add", func(c *gin.Context) {
-		userID := c.GetHeader("X-API-User-ID")
+		userID, ok := getUserID(c)
+        if !ok {
+            return
+        }
+
 		recipeBook := &domain.RecipeBook{
 			ID:     uuid.New().String(),
 			Title:  "",
@@ -49,7 +60,11 @@ func SetupRouter(svc service.RecipeBookService) *gin.Engine {
 	})
 
 	router.GET("/api/books/list", func(c *gin.Context) {
-		userID := c.GetHeader("X-API-User-ID")
+		userID, ok := getUserID(c)
+        if !ok {
+            return
+        }
+		
 		recipeBooks, err := svc.ListRecipeBooks(c.Request.Context(), userID)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
@@ -59,4 +74,14 @@ func SetupRouter(svc service.RecipeBookService) *gin.Engine {
 	})
 
 	return router
+}
+
+func getUserID(c *gin.Context) (string, bool) {
+	uidIfc, ok := c.Get("userID")
+	if !ok {
+		c.JSON(401, gin.H{"error": "unauthenticated"})
+		return "", false
+	}
+	userID := uidIfc.(string)
+	return userID, true
 }

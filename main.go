@@ -1,29 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"danielherschel/home-recipe/pkg/router"
+	"danielherschel/home-recipe/pkg/service"
 )
 
-func setupRouter() *gin.Engine {
-  	router := gin.Default()
-
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
-
-	router.GET("/recipes/book/:name", func(c *gin.Context) {
-		recipeBookname := c.Param("name")
-		c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Get Recipe Book %s", recipeBookname)})
-	})
-
-	return router
-}
-
 func main() {
-	r := setupRouter()
+	svc := service.NewInMemoryService()
+	r := router.SetupRouter(svc)
 
 	r.Run(":8080")
 }

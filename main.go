@@ -7,7 +7,7 @@ import (
 
 func main() {
 	svc := service.NewInMemoryService()
-	r := router.SetupRouter(svc)
+	r := router.NewRouter(svc)
 
 	r.Run(":8080")
 }

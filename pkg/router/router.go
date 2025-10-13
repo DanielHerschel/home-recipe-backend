@@ -1,7 +1,6 @@
 package router
 
 import (
-	"danielherschel/home-recipe/pkg/middleware"
 	"danielherschel/home-recipe/pkg/service"
 
 	"github.com/gin-gonic/gin"
@@ -12,26 +11,32 @@ type Router struct {
 	RecipeBookService service.RecipeBookService
 }
 
-func NewRouter(svc service.RecipeBookService) *Router {
-	router := &Router{
-		Engine:            setupRouterEngine(),
-		RecipeBookService: svc,
-	}
-
-	router.addRecipeBookRoutes()
-	return router
+type RouterBuilder struct {
+	router *Router
 }
 
-func setupRouterEngine() *gin.Engine {
-	router := gin.Default()
+func NewRouter(svc service.RecipeBookService) *RouterBuilder {
+	return &RouterBuilder{
+		router: &Router{
+			Engine:            gin.Default(),
+			RecipeBookService: svc,
+		},
+	}
+}
 
-	router.Use(middleware.DevAuthMiddleware())
+func (builder *RouterBuilder) AddMiddleware(mw gin.HandlerFunc) *RouterBuilder {
+	builder.router.Use(mw)
+	return builder
+}
 
-	router.GET("/api/health", func(c *gin.Context) {
+func (builder *RouterBuilder) Build() *Router {
+	builder.router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
+	
+	builder.router.addRecipeBookRoutes()
 
-	return router
+	return builder.router
 }
 
 func getUserID(c *gin.Context) (string, bool) {

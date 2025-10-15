@@ -1,27 +1,26 @@
-package service
+package repository
 
 import (
 	"context"
-	"errors"
 	"danielherschel/home-recipe/pkg/domain"
+	"errors"
 
 	db "danielherschel/home-recipe/pkg/database"
 )
 
-
-func NewRecipeBookService() *PostgresRecipeBookService {
-	return &PostgresRecipeBookService{}
+func NewRecipeBookRepository() *PostgresRecipeBookRepository {
+	return &PostgresRecipeBookRepository{}
 }
 
-type PostgresRecipeBookService struct {
+type PostgresRecipeBookRepository struct {
 	DB *db.PGDatabase
 }
 
-var _ RecipeBookService = (*PostgresRecipeBookService)(nil)
+var _ RecipeBookRepository = (*PostgresRecipeBookRepository)(nil)
 
-func (r *PostgresRecipeBookService) GetRecipeBook(ctx context.Context, user_id string, id string) (*domain.RecipeBook, error) {
+func (r *PostgresRecipeBookRepository) GetRecipeBook(ctx context.Context, user_id string, id string) (*domain.RecipeBook, error) {
 	row := r.DB.Conn.QueryRow(ctx, "SELECT id, title, user_id FROM recipe_books WHERE id=$1 AND user_id=$2", id, user_id)
-	
+
 	recipeBook := &domain.RecipeBook{}
 	err := row.Scan(&recipeBook.ID, &recipeBook.Title, &recipeBook.UserID)
 	if err != nil {
@@ -30,7 +29,7 @@ func (r *PostgresRecipeBookService) GetRecipeBook(ctx context.Context, user_id s
 	return recipeBook, nil
 }
 
-func (r *PostgresRecipeBookService) SaveRecipeBook(ctx context.Context, user_id string, book *domain.RecipeBook) error {
+func (r *PostgresRecipeBookRepository) SaveRecipeBook(ctx context.Context, user_id string, book *domain.RecipeBook) error {
 	if book.UserID == "" {
 		book.UserID = user_id
 	} else if book.UserID != user_id {
@@ -49,7 +48,7 @@ func (r *PostgresRecipeBookService) SaveRecipeBook(ctx context.Context, user_id 
 	return nil
 }
 
-func (r *PostgresRecipeBookService) DeleteRecipeBook(ctx context.Context, user_id string, id string) error {
+func (r *PostgresRecipeBookRepository) DeleteRecipeBook(ctx context.Context, user_id string, id string) error {
 	_, err := r.DB.Conn.Exec(ctx, "DELETE FROM recipe_books WHERE id=$1 AND user_id=$2", id, user_id)
 	if err != nil {
 		return err
@@ -57,7 +56,7 @@ func (r *PostgresRecipeBookService) DeleteRecipeBook(ctx context.Context, user_i
 	return nil
 }
 
-func (r *PostgresRecipeBookService) ListRecipeBooks(ctx context.Context, user_id string) ([]*domain.RecipeBook, error) {
+func (r *PostgresRecipeBookRepository) ListRecipeBooks(ctx context.Context, user_id string) ([]*domain.RecipeBook, error) {
 	rows, err := r.DB.Conn.Query(ctx, "SELECT id, title, user_id FROM recipe_books WHERE user_id=$1", user_id)
 	if err != nil {
 		return nil, err
@@ -78,7 +77,7 @@ func (r *PostgresRecipeBookService) ListRecipeBooks(ctx context.Context, user_id
 	return books, nil
 }
 
-func (r *PostgresRecipeBookService) SaveRecipe(ctx context.Context, user_id string, recipe *domain.Recipe) error {
+func (r *PostgresRecipeBookRepository) SaveRecipe(ctx context.Context, user_id string, recipe *domain.Recipe) error {
 	if recipe.UserID == "" {
 		recipe.UserID = user_id
 	} else if recipe.UserID != user_id {
@@ -109,7 +108,7 @@ func (r *PostgresRecipeBookService) SaveRecipe(ctx context.Context, user_id stri
 	return nil
 }
 
-func (r *PostgresRecipeBookService) DeleteRecipe(ctx context.Context, user_id string, recipeID string) error {
+func (r *PostgresRecipeBookRepository) DeleteRecipe(ctx context.Context, user_id string, recipeID string) error {
 	_, err := r.DB.Conn.Exec(ctx, "DELETE FROM recipes WHERE id=$1 AND user_id=$2", recipeID, user_id)
 	if err != nil {
 		return err
@@ -117,7 +116,7 @@ func (r *PostgresRecipeBookService) DeleteRecipe(ctx context.Context, user_id st
 	return nil
 }
 
-func (r *PostgresRecipeBookService) GetRecipe(ctx context.Context, user_id string, recipeID string) (*domain.Recipe, error) {
+func (r *PostgresRecipeBookRepository) GetRecipe(ctx context.Context, user_id string, recipeID string) (*domain.Recipe, error) {
 	row := r.DB.Conn.QueryRow(ctx, "SELECT id, user_id, book_id, title, ingredients, instructions FROM recipes WHERE id=$1 AND user_id=$2", recipeID, user_id)
 
 	recipe := &domain.Recipe{}
@@ -128,7 +127,7 @@ func (r *PostgresRecipeBookService) GetRecipe(ctx context.Context, user_id strin
 	return recipe, nil
 }
 
-func (r *PostgresRecipeBookService) ListRecipesInBook(ctx context.Context, user_id string, bookID string) ([]*domain.Recipe, error) {
+func (r *PostgresRecipeBookRepository) ListRecipesInBook(ctx context.Context, user_id string, bookID string) ([]*domain.Recipe, error) {
 	rows, err := r.DB.Conn.Query(ctx, "SELECT id, user_id, book_id, title, ingredients, instructions FROM recipes WHERE book_id=$1 AND user_id=$2", bookID, user_id)
 	if err != nil {
 		return nil, err

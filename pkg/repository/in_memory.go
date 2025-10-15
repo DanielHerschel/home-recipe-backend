@@ -1,4 +1,4 @@
-package service
+package repository
 
 import (
 	"context"
@@ -8,14 +8,14 @@ import (
 	"danielherschel/home-recipe/pkg/domain"
 )
 
-func NewInMemoryService() *InMemoryService {
-	return &InMemoryService{
+func NewInMemoryRepository() *InMemoryRepository {
+	return &InMemoryRepository{
 		books:   make(map[string]*domain.RecipeBook),
 		recipes: make(map[string]*domain.Recipe),
 	}
 }
 
-type InMemoryService struct {
+type InMemoryRepository struct {
 	mu      sync.RWMutex
 	books   map[string]*domain.RecipeBook
 	recipes map[string]*domain.Recipe
@@ -26,9 +26,9 @@ var (
 )
 
 // Ensure InMemoryService implements RecipeBookService
-var _ RecipeBookService = (*InMemoryService)(nil)
+var _ RecipeBookRepository = (*InMemoryRepository)(nil)
 
-func (s *InMemoryService) GetRecipeBook(ctx context.Context, user_id string, id string) (*domain.RecipeBook, error) {
+func (s *InMemoryRepository) GetRecipeBook(ctx context.Context, user_id string, id string) (*domain.RecipeBook, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	b, ok := s.books[id]
@@ -40,7 +40,7 @@ func (s *InMemoryService) GetRecipeBook(ctx context.Context, user_id string, id 
 	return &copy, nil
 }
 
-func (s *InMemoryService) SaveRecipeBook(ctx context.Context, user_id string, book *domain.RecipeBook) error {
+func (s *InMemoryRepository) SaveRecipeBook(ctx context.Context, user_id string, book *domain.RecipeBook) error {
 	if book == nil || book.ID == "" {
 		return errors.New("invalid book")
 	}
@@ -58,7 +58,7 @@ func (s *InMemoryService) SaveRecipeBook(ctx context.Context, user_id string, bo
 	return nil
 }
 
-func (s *InMemoryService) DeleteRecipeBook(ctx context.Context, user_id string, id string) error {
+func (s *InMemoryRepository) DeleteRecipeBook(ctx context.Context, user_id string, id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	b, ok := s.books[id]
@@ -75,7 +75,7 @@ func (s *InMemoryService) DeleteRecipeBook(ctx context.Context, user_id string, 
 	return nil
 }
 
-func (s *InMemoryService) ListRecipeBooks(ctx context.Context, user_id string) ([]*domain.RecipeBook, error) {
+func (s *InMemoryRepository) ListRecipeBooks(ctx context.Context, user_id string) ([]*domain.RecipeBook, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	out := make([]*domain.RecipeBook, 0, len(s.books))
@@ -89,7 +89,7 @@ func (s *InMemoryService) ListRecipeBooks(ctx context.Context, user_id string) (
 	return out, nil
 }
 
-func (s *InMemoryService) SaveRecipe(ctx context.Context, user_id string, recipe *domain.Recipe) error {
+func (s *InMemoryRepository) SaveRecipe(ctx context.Context, user_id string, recipe *domain.Recipe) error {
 	if recipe == nil || recipe.ID == "" || recipe.BookID == "" {
 		return errors.New("invalid recipe")
 	}
@@ -116,7 +116,7 @@ func (s *InMemoryService) SaveRecipe(ctx context.Context, user_id string, recipe
 	return nil
 }
 
-func (s *InMemoryService) DeleteRecipe(ctx context.Context, user_id string, recipeID string) error {
+func (s *InMemoryRepository) DeleteRecipe(ctx context.Context, user_id string, recipeID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	r, ok := s.recipes[recipeID]
@@ -127,7 +127,7 @@ func (s *InMemoryService) DeleteRecipe(ctx context.Context, user_id string, reci
 	return nil
 }
 
-func (s *InMemoryService) GetRecipe(ctx context.Context, user_id string, recipeID string) (*domain.Recipe, error) {
+func (s *InMemoryRepository) GetRecipe(ctx context.Context, user_id string, recipeID string) (*domain.Recipe, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	r, ok := s.recipes[recipeID]
@@ -142,7 +142,7 @@ func (s *InMemoryService) GetRecipe(ctx context.Context, user_id string, recipeI
 	return &c, nil
 }
 
-func (s *InMemoryService) ListRecipesInBook(ctx context.Context, user_id string, bookID string) ([]*domain.Recipe, error) {
+func (s *InMemoryRepository) ListRecipesInBook(ctx context.Context, user_id string, bookID string) ([]*domain.Recipe, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	b, ok := s.books[bookID]

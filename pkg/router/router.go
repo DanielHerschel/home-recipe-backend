@@ -1,25 +1,25 @@
 package router
 
 import (
-	"danielherschel/home-recipe/pkg/service"
+	repo "danielherschel/home-recipe/pkg/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Router struct {
 	*gin.Engine
-	RecipeBookService service.RecipeBookService
+	RecipeBookService repo.RecipeBookRepository
 }
 
 type RouterBuilder struct {
 	router *Router
 }
 
-func NewRouter(svc service.RecipeBookService) *RouterBuilder {
+func NewRouter(repo repo.RecipeBookRepository) *RouterBuilder {
 	return &RouterBuilder{
 		router: &Router{
 			Engine:            gin.Default(),
-			RecipeBookService: svc,
+			RecipeBookService: repo,
 		},
 	}
 }
@@ -33,7 +33,7 @@ func (builder *RouterBuilder) Build() *Router {
 	builder.router.GET("/api/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
-	
+
 	builder.router.addRecipeBookRoutes()
 
 	return builder.router

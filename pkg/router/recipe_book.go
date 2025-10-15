@@ -2,7 +2,7 @@ package router
 
 import (
 	"danielherschel/home-recipe/pkg/domain"
-	"danielherschel/home-recipe/pkg/service"
+	repo "danielherschel/home-recipe/pkg/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -26,14 +26,14 @@ func (router *Router) addRecipeBookRoutes() {
 	})
 }
 
-func getRecipeBook(c *gin.Context, svc service.RecipeBookService) {
+func getRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
 	}
 
 	recipeBookname := c.Param("id")
-	recipeBook, err := svc.GetRecipeBook(c.Request.Context(), userID, recipeBookname)
+	recipeBook, err := repo.GetRecipeBook(c.Request.Context(), userID, recipeBookname)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -45,7 +45,7 @@ func getRecipeBook(c *gin.Context, svc service.RecipeBookService) {
 	c.JSON(200, recipeBook)
 }
 
-func saveRecipeBook(c *gin.Context, svc service.RecipeBookService) {
+func saveRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
@@ -60,34 +60,34 @@ func saveRecipeBook(c *gin.Context, svc service.RecipeBookService) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	if err := svc.SaveRecipeBook(c.Request.Context(), userID, recipeBook); err != nil {
+	if err := repo.SaveRecipeBook(c.Request.Context(), userID, recipeBook); err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{"status": "saved"})
 }
 
-func deleteRecipeBook(c *gin.Context, svc service.RecipeBookService) {
+func deleteRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
 	}
 
 	recipeBookID := c.Param("id")
-	if err := svc.DeleteRecipeBook(c.Request.Context(), userID, recipeBookID); err != nil {
+	if err := repo.DeleteRecipeBook(c.Request.Context(), userID, recipeBookID); err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{"status": "deleted"})
 }
 
-func listRecipeBooks(c *gin.Context, svc service.RecipeBookService) {
+func listRecipeBooks(c *gin.Context, repo repo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
 	}
-	
-	recipeBooks, err := svc.ListRecipeBooks(c.Request.Context(), userID)
+
+	recipeBooks, err := repo.ListRecipeBooks(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

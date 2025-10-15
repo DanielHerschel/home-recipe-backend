@@ -1,11 +1,11 @@
-package service
+package repository
 
 import (
 	"context"
 	"danielherschel/home-recipe/pkg/domain"
 )
 
-type RecipeBookService interface {
+type RecipeBookRepository interface {
 	GetRecipeBook(ctx context.Context, user_id string, id string) (*domain.RecipeBook, error)
 	SaveRecipeBook(ctx context.Context, user_id string, book *domain.RecipeBook) error
 	DeleteRecipeBook(ctx context.Context, user_id string, id string) error

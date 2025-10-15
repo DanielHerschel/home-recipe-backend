@@ -2,12 +2,12 @@ package main
 
 import (
 	"danielherschel/home-recipe/pkg/router"
-	"danielherschel/home-recipe/pkg/service"
+	repo "danielherschel/home-recipe/pkg/repository"
 	"danielherschel/home-recipe/pkg/middleware"
 )
 
 func main() {
-	svc := service.NewInMemoryService()
+	svc := repo.NewInMemoryRepository()
 	r := router.NewRouter(svc).
 		AddMiddleware(middleware.DevAuthMiddleware()).
 		Build()

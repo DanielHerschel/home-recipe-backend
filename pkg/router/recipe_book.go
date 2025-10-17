@@ -2,7 +2,7 @@ package router
 
 import (
 	"danielherschel/home-recipe/pkg/domain"
-	repo "danielherschel/home-recipe/pkg/repository"
+	bookRepo "danielherschel/home-recipe/pkg/repository/book"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -26,7 +26,7 @@ func (router *Router) addRecipeBookRoutes() {
 	})
 }
 
-func getRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
+func getRecipeBook(c *gin.Context, repo bookRepo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
@@ -45,7 +45,7 @@ func getRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	c.JSON(200, recipeBook)
 }
 
-func saveRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
+func saveRecipeBook(c *gin.Context, repo bookRepo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
@@ -67,7 +67,7 @@ func saveRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	c.JSON(200, gin.H{"status": "saved"})
 }
 
-func deleteRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
+func deleteRecipeBook(c *gin.Context, repo bookRepo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return
@@ -81,7 +81,7 @@ func deleteRecipeBook(c *gin.Context, repo repo.RecipeBookRepository) {
 	c.JSON(200, gin.H{"status": "deleted"})
 }
 
-func listRecipeBooks(c *gin.Context, repo repo.RecipeBookRepository) {
+func listRecipeBooks(c *gin.Context, repo bookRepo.RecipeBookRepository) {
 	userID, ok := getUserID(c)
 	if !ok {
 		return

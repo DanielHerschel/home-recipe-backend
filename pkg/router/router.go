@@ -1,21 +1,21 @@
 package router
 
 import (
-	repo "danielherschel/home-recipe/pkg/repository"
+	bookRepo "danielherschel/home-recipe/pkg/repository/book"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Router struct {
 	*gin.Engine
-	RecipeBookService repo.RecipeBookRepository
+	RecipeBookService bookRepo.RecipeBookRepository
 }
 
 type RouterBuilder struct {
 	router *Router
 }
 
-func NewRouter(repo repo.RecipeBookRepository) *RouterBuilder {
+func NewRouter(repo bookRepo.RecipeBookRepository) *RouterBuilder {
 	return &RouterBuilder{
 		router: &Router{
 			Engine:            gin.Default(),

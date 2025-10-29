@@ -8,8 +8,12 @@ import (
 	db "danielherschel/home-recipe/pkg/database"
 )
 
-func NewRecipeBookRepository() *PostgresRecipeBookRepository {
-	return &PostgresRecipeBookRepository{}
+func NewRecipeBookRepository(url string) *PostgresRecipeBookRepository {
+	database, err := db.NewPostgresDB(context.Background(), url)
+	if err != nil {
+		panic(err)
+	}
+	return &PostgresRecipeBookRepository{DB: database}
 }
 
 type PostgresRecipeBookRepository struct {
